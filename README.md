@@ -1,0 +1,2 @@
+# railhelpscout
+helpscout.com integration
