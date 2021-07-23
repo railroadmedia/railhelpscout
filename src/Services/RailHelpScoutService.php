@@ -22,23 +22,31 @@ class RailHelpScoutService
     }
 
     public function createCustomer(
+        $firstName,
+        $lastName,
         $email,
         $attributes
     ) {
         $customer = new Customer();
-        $customer->addEmail($email, 'other');
+        $customer
+            ->setFirstName($firstName)
+            ->setLastName($lastName)
+            ->addEmail($email, 'other');
 
         $properties = [];
 
         foreach ($attributes as $key => $value) {
 
-            $prop = new Property();
+            if ($value) {
+                $prop = new Property();
 
-            $prop
-                ->setName($key)
-                ->setValue($value);
+                $prop
+                    ->setName($key)
+                    ->setSlug($key)
+                    ->setValue($value);
 
-            $properties[] = $prop;
+                $properties[] = $prop;
+            }
         }
 
         $customer->setProperties(new Collection($properties));
