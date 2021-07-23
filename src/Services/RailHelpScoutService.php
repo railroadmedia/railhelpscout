@@ -2,6 +2,8 @@
 
 namespace Railroad\RailHelpScout\Services;
 
+use Carbon\Carbon;
+use Railroad\RailHelpScout\Models\Customer as LocalCustomer;
 use HelpScout\Api\ApiClient;
 use HelpScout\Api\Customers\Customer;
 use HelpScout\Api\Customers\Entry\Email;
@@ -22,6 +24,7 @@ class RailHelpScoutService
     }
 
     public function createCustomer(
+        $userId,
         $firstName,
         $lastName,
         $email,
@@ -53,7 +56,15 @@ class RailHelpScoutService
 
         $customerId = $this->client->customers()->create($customer);
 
-        dd($customerId);
+        $localCustomer = new LocalCustomer();
+
+        $localCustomer->internal_id = $userId;
+        $localCustomer->external_id = $customerId;
+
+        $localCustomer->setCreatedAt(Carbon::now());
+        $localCustomer->setUpdatedAt(Carbon::now());
+
+        $localCustomer->saveOrFail();
     }
 
     public function updateCustomer(

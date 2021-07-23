@@ -20,6 +20,10 @@ class RailHelpScoutProvider extends ServiceProvider
                 __DIR__ . '/../../config/railhelpscout.php' => config_path('railhelpscout.php'),
             ]
         );
+
+        if (config('railhelpscout.data_mode') == 'host') {
+            $this->loadMigrationsFrom(__DIR__.'/../../migrations');
+        }
     }
 
     /**
