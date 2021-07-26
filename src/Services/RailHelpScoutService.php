@@ -8,6 +8,7 @@ use HelpScout\Api\ApiClient;
 use HelpScout\Api\Customers\Customer;
 use HelpScout\Api\Customers\Entry\Email;
 use HelpScout\Api\Customers\Entry\Property;
+use HelpScout\Api\Customers\Entry\PropertyOperation;
 use HelpScout\Api\Entity\Collection;
 use Railroad\RailHelpScout\Factories\ClientFactory;
 
@@ -23,6 +24,17 @@ class RailHelpScoutService
         $this->client = $clientFactory::build();
     }
 
+    /**
+     * @param int $userId
+     * @param int $firstName
+     * @param int $lastName
+     * @param int $userId
+     * @param int $userId
+     *
+     * @return LocalCustomer
+     *
+     * @throws Exception
+     */
     public function createCustomer(
         $userId,
         $firstName,
@@ -68,11 +80,72 @@ class RailHelpScoutService
     }
 
     public function updateCustomer(
+        $userId,
+        $firstName,
+        $lastName,
+        $email,
+        $attributes
     ) {
 
+        $customer = $this->getCustomerById($userId);
+
+        $props = $customer->getProperties();
+
+        $operations = [];
+
+        foreach ($props as $prop) {
+            if (isset($attributes[$prop->getName()])) {
+                if ($prop->getValue() != $attributes[$prop->getName()]) {
+                    if ($attributes[$prop->getName()]) {
+                        $operations[] = new PropertyOperation(
+                            PropertyOperation::OPERATION_REPLACE,
+                            $prop->getName(),
+                            $attributes[$prop->getName()]
+                        );
+                    } else {
+                        $operations[] = new PropertyOperation(
+                            PropertyOperation::OPERATION_REMOVE,
+                            $prop->getName()
+                        );
+                    }
+                }
+            } else if ($prop->getValue()) {
+                $operations[] = new PropertyOperation(
+                    PropertyOperation::OPERATION_REMOVE,
+                    $prop->getName()
+                );
+            }
+        }
+
+        if (count($operations)) {
+            $this->client->customerProperty()->updateProperties($customer->getId(), new Collection($operations));
+        }
     }
 
     public function deleteCustomer(
     ) {
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @return Customer
+     *
+     * @throws Exception
+     */
+    public function getCustomerById($userId): Customer
+    {
+        /**
+         * @var $localCustomer LocalCustomer
+         */
+        $localCustomer = LocalCustomer::query()->where(
+            [
+                'internal_id' => $userId,
+            ]
+        )->firstOrFail();
+
+        $customer = $this->client->customers()->get($localCustomer->external_id);
+
+        return $customer;
     }
 }
