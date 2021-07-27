@@ -89,6 +89,25 @@ class RailHelpScoutService
 
         $customer = $this->getCustomerById($userId);
 
+        $emails = $customer->getEmails()->toArray();
+        $customerEmail = array_shift($emails);
+
+        if ($customerEmail->getValue() != $email) {
+
+            $customerEmail->setValue($email);
+
+            $this->client->customerEntry()->updateEmail($customer->getId(), $customerEmail);
+        }
+
+        if ($customer->getFirstName() != $firstName || $customer->getLastName() != $lastName) {
+
+            $customer
+                ->setFirstName($firstName)
+                ->setLastName($lastName);
+
+            $this->client->customers()->update($customer);
+        }
+
         $props = $customer->getProperties();
 
         $operations = [];
