@@ -141,6 +141,29 @@ class RailHelpScoutService
         }
     }
 
+    public function createOrUpdateCustomer(
+        $userId,
+        $firstName,
+        $lastName,
+        $email,
+        $attributes
+    ) {
+        /**
+         * @var $localCustomer LocalCustomer
+         */
+        $localCustomer = LocalCustomer::query()->where(
+            [
+                'internal_id' => $userId,
+            ]
+        )->first();
+
+        if (empty($localCustomer)) {
+            $this->createCustomer($userId, $firstName, $lastName, $email, $attributes);
+        } else {
+            $this->updateCustomer($userId, $firstName, $lastName, $email, $attributes);
+        }
+    }
+
     public function deleteCustomer(
     ) {
     }
