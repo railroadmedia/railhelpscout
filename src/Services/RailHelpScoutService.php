@@ -97,24 +97,39 @@ class RailHelpScoutService
 
         $customer = $this->getCustomerById($userId);
 
-        /*
         $emails = $customer->getEmails()->toArray();
-        $customerEmail = array_shift($emails);
+        $addEmail = true;
 
-        if ($customerEmail->getValue() != $email) {
-
-            $customerEmail->setValue($email);
-
-            $this->client->customerEntry()->updateEmail($customer->getId(), $customerEmail);
+        foreach ($emails as $customerEmail) {
+            if ($customerEmail->getValue() == $email) {
+                $addEmail = false;
+                break;
+            }
         }
-        */
 
-        if ($customer->getFirstName() != $firstName || $customer->getLastName() != $lastName) {
+        if ($addEmail) {
+            $newEmail = new Email();
 
-            $customer
-                ->setFirstName($firstName)
-                ->setLastName($lastName);
+            $newEmail
+                ->setValue($email)
+                ->setType('other');
 
+            $this->client->customerEntry()->createEmail($customer->getId(), $newEmail);
+        }
+
+        $updateCustomer = false;
+
+        if ($firstName && $customer->getFirstName() != $firstName) {
+            $customer->setLastName($lastName);
+            $updateCustomer = true;
+        }
+
+        if ($lastName && $customer->getLastName() != $lastName) {
+            $customer->setLastName($lastName);
+            $updateCustomer = true;
+        }
+
+        if ($updateCustomer) {
             $this->client->customers()->update($customer);
         }
 
@@ -175,14 +190,39 @@ class RailHelpScoutService
         $attributes,
         Customer $customer
     ) {
-        // todo - add email update
+        $emails = $customer->getEmails()->toArray();
+        $addEmail = true;
 
-        if ($customer->getFirstName() != $firstName || $customer->getLastName() != $lastName) {
+        foreach ($emails as $customerEmail) {
+            if ($customerEmail->getValue() == $email) {
+                $addEmail = false;
+                break;
+            }
+        }
 
-            $customer
-                ->setFirstName($firstName)
-                ->setLastName($lastName);
+        if ($addEmail) {
+            $newEmail = new Email();
 
+            $newEmail
+                ->setValue($email)
+                ->setType('other');
+
+            $this->client->customerEntry()->createEmail($customer->getId(), $newEmail);
+        }
+
+        $updateCustomer = false;
+
+        if ($firstName && $customer->getFirstName() != $firstName) {
+            $customer->setLastName($lastName);
+            $updateCustomer = true;
+        }
+
+        if ($lastName && $customer->getLastName() != $lastName) {
+            $customer->setLastName($lastName);
+            $updateCustomer = true;
+        }
+
+        if ($updateCustomer) {
             $this->client->customers()->update($customer);
         }
 
