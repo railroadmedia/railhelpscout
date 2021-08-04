@@ -67,15 +67,17 @@ class RailHelpScoutService
 
         $customerId = $this->client->customers()->create($customer);
 
-        $localCustomer = new LocalCustomer();
+        if ($customerId) {
+            $localCustomer = new LocalCustomer();
 
-        $localCustomer->internal_id = $userId;
-        $localCustomer->external_id = $customerId;
+            $localCustomer->internal_id = $userId;
+            $localCustomer->external_id = $customerId;
 
-        $localCustomer->setCreatedAt(Carbon::now());
-        $localCustomer->setUpdatedAt(Carbon::now());
+            $localCustomer->setCreatedAt(Carbon::now());
+            $localCustomer->setUpdatedAt(Carbon::now());
 
-        $localCustomer->saveOrFail();
+            $localCustomer->saveOrFail();
+        }
     }
 
     /**
