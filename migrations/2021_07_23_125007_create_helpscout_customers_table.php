@@ -19,7 +19,7 @@ class CreateHelpscoutCustomersTable extends Migration
 
                 $table->increments('internal_id');
 
-                $table->bigInteger('external_id')->unique()->index();
+                $table->bigInteger('external_id')->index();
 
                 $table->timestamp('created_at')->index();
                 $table->timestamp('updated_at')->index();
