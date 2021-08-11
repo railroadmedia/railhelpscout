@@ -14,7 +14,9 @@ class ClientFactory
 
         $client = ApiClientFactory::createClient();
 
-        $client->useClientCredentials($credentials['app_id'], $credentials['app_secret']);
+        if (!empty($credentials['app_id']) && !empty($credentials['app_secret'])) {
+            $client->useClientCredentials($credentials['app_id'], $credentials['app_secret']);
+        }
 
         return $client;
     }
