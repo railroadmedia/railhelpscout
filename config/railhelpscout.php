@@ -9,4 +9,6 @@ return [
         'app_id' => env('HELPSCOUT_APP_ID'),
         'app_secret' => env('HELPSCOUT_APP_SECRET'),
     ],
+
+    'helpscout_tracking_beacon_id' => env('HELPSCOUT_TRACKING_BEACON_ID'),
 ];

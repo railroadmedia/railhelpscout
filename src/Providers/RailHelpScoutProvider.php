@@ -21,6 +21,8 @@ class RailHelpScoutProvider extends ServiceProvider
             ]
         );
 
+        $this->loadViewsFrom(__DIR__ . '/../../views', 'helpscout');
+
         if (config('railhelpscout.data_mode') == 'host') {
             $this->loadMigrationsFrom(__DIR__.'/../../migrations');
         }
