@@ -86,6 +86,7 @@ class RailHelpScoutService
      * @param string $lastName
      * @param string $email
      * @param array $attributes
+     * @param array $brandsAttributesKeys
      *
      * @throws Exception
      */
@@ -94,7 +95,8 @@ class RailHelpScoutService
         $firstName,
         $lastName,
         $email,
-        $attributes
+        $attributes,
+        $brandsAttributesKeys
     ) {
 
         $customer = $this->getCustomerById($userId);
@@ -135,7 +137,7 @@ class RailHelpScoutService
             $this->client->customers()->update($customer);
         }
 
-        $operations = $this->getCustomerUpdateAttributesOperations($customer, $attributes);
+        $operations = $this->getCustomerUpdateAttributesOperations($customer, $attributes, $brandsAttributesKeys);
 
         if (count($operations)) {
             $this->client->customerProperty()->updateProperties($customer->getId(), new Collection($operations));
@@ -148,6 +150,7 @@ class RailHelpScoutService
      * @param string $lastName
      * @param string $email
      * @param array $attributes
+     * @param array $brandsAttributesKeys
      *
      * @throws Exception
      */
@@ -156,7 +159,8 @@ class RailHelpScoutService
         $firstName,
         $lastName,
         $email,
-        $attributes
+        $attributes,
+        $brandsAttributesKeys
     ) {
         /**
          * @var $localCustomer LocalCustomer
@@ -170,7 +174,7 @@ class RailHelpScoutService
         if (empty($localCustomer)) {
             $this->createCustomer($userId, $firstName, $lastName, $email, $attributes);
         } else {
-            $this->updateCustomer($userId, $firstName, $lastName, $email, $attributes);
+            $this->updateCustomer($userId, $firstName, $lastName, $email, $attributes, $brandsAttributesKeys);
         }
     }
 
@@ -180,6 +184,7 @@ class RailHelpScoutService
      * @param string $lastName
      * @param string $email
      * @param array $attributes
+     * @param array $brandsAttributesKeys
      * @param Customer $customer
      *
      * @throws Exception
@@ -190,6 +195,7 @@ class RailHelpScoutService
         $lastName,
         $email,
         $attributes,
+        $brandsAttributesKeys,
         Customer $customer
     ) {
         $emails = $customer->getEmails()->toArray();
@@ -228,7 +234,7 @@ class RailHelpScoutService
             $this->client->customers()->update($customer);
         }
 
-        $operations = $this->getCustomerUpdateAttributesOperations($customer, $attributes);
+        $operations = $this->getCustomerUpdateAttributesOperations($customer, $attributes, $brandsAttributesKeys);
 
         if (count($operations)) {
             $this->client->customerProperty()->updateProperties($customer->getId(), new Collection($operations));
@@ -279,6 +285,7 @@ class RailHelpScoutService
     /**
      * @param Customer $customer
      * @param array $attributes
+     * @param array $brandsAttributesKeys
      *
      * @return PropertyOperation[]|array
      *
@@ -286,7 +293,8 @@ class RailHelpScoutService
      */
     protected function getCustomerUpdateAttributesOperations(
         Customer $customer,
-        array $attributes
+        array $attributes,
+        array $brandsAttributesKeys
     ): array {
 
         $props = $customer->getProperties();
@@ -302,14 +310,14 @@ class RailHelpScoutService
                             $prop->getName(),
                             $attributes[$prop->getName()]
                         );
-                    } else {
+                    } else if (isset($brandsAttributesKeys[$prop->getName()])) {
                         $operations[] = new PropertyOperation(
                             PropertyOperation::OPERATION_REMOVE,
                             $prop->getName()
                         );
                     }
                 }
-            } else if ($prop->getValue()) {
+            } else if (isset($brandsAttributesKeys[$prop->getName()]) && $prop->getValue()) {
                 $operations[] = new PropertyOperation(
                     PropertyOperation::OPERATION_REMOVE,
                     $prop->getName()
